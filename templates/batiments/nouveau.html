@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}ThermoCalc — Nouveau Bâtiment{%
-endblock %} {% block content %}
+{% extends "layouts/base.html" %}
+<!-- thermocalc/templates/batiments/nouveau.html -->
+{% block title %}ThermoCalc — Nouveau Bâtiment{% endblock %} {% block content %}
 <div class="page-header">
   <div>
     <h1 class="page-title">Créer un Nouveau Bâtiment</h1>
@@ -7,13 +8,15 @@ endblock %} {% block content %}
       Saisissez les informations du bâtiment pour débuter l'analyse
     </p>
   </div>
-  <a href="{{ url_for('index') }}" class="btn-secondary">← Retour à la liste</a>
+  <a href="{{ url_for('batiments.index') }}" class="btn-secondary"
+    >← Retour à la liste</a
+  >
 </div>
 
 <div class="form-container-new">
   <form
     method="POST"
-    action="{{ url_for('nouveau_batiment') }}"
+    action="{{ url_for('batiments.nouveau_batiment') }}"
     class="modern-form"
   >
     <!-- SECTION 1: IDENTIFICATION -->
@@ -240,7 +243,9 @@ endblock %} {% block content %}
 
     <!-- ACTIONS -->
     <div class="form-actions-new">
-      <a href="{{ url_for('index') }}" class="btn-secondary-large">Annuler</a>
+      <a href="{{ url_for('batiments.index') }}" class="btn-secondary-large"
+        >Annuler</a
+      >
       <button type="submit" class="btn-primary-large">
         <span>✓ Créer le Bâtiment</span>
       </button>

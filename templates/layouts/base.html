@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- thermocalc/templates/layouts/base.html -->
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
@@ -30,18 +31,18 @@
       </div>
       <div class="nav-links">
         <a
-          href="{{ url_for('index') }}"
-          class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"
+          href="{{ url_for('batiments.index') }}"
+          class="nav-link {% if request.endpoint == 'batiments.index' %}active{% endif %}"
         >
           Bâtiments
         </a>
         <a
-          href="{{ url_for('statistiques') }}"
-          class="nav-link {% if request.endpoint == 'statistiques' %}active{% endif %}"
+          href="{{ url_for('stats.statistiques') }}"
+          class="nav-link {% if request.endpoint == 'stats.statistiques' %}active{% endif %}"
         >
           Statistiques
         </a>
-        <a href="{{ url_for('nouveau_batiment') }}" class="nav-btn">
+        <a href="{{ url_for('batiments.nouveau_batiment') }}" class="nav-btn">
           + Nouveau Bâtiment
         </a>
       </div>
@@ -66,7 +67,20 @@
       <span>Calcul de Déperditions Thermiques</span>
     </footer>
 
+    <!-- JavaScript files -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/composants.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/preview.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/calcul.js') }}"></script>
+    <script>
+      // Verify functions are loaded
+      console.log('Functions loaded:', {
+        showLoader: typeof showLoader !== 'undefined',
+        hideLoader: typeof hideLoader !== 'undefined',
+        lancerCalcul: typeof lancerCalcul !== 'undefined',
+        ajouterMur: typeof ajouterMur !== 'undefined'
+      });
+    </script>
     {% block scripts %}{% endblock %}
   </body>
 </html>

@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" %}
+<!-- thermocalc/templates/batiments/index.html -->
+{% block title %}ThermoCalc — Liste des Bâtiments{% endblock %} {% block content
+%}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Bâtiments Enregistrés</h1>
+    <p class="page-subtitle">Gestion et analyse énergétique du parc bâti</p>
+  </div>
+  <a href="{{ url_for('batiments.nouveau_batiment') }}" class="btn-primary"
+    >+ Nouveau bâtiment</a
+  >
+</div>
+
+{% if batiments %}
+<div class="buildings-grid">
+  {% for b in batiments %}
+  <div class="building-card">
+    <div class="card-header">
+      <div class="card-code">{{ b.code_batiment }}</div>
+      {% if b.classe_energetique %}
+      <div class="badge-classe classe-{{ b.classe_energetique }}">
+        {{ b.classe_energetique }}
+      </div>
+      {% else %}
+      <div class="badge-classe classe-nd">—</div>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ b.type_batiment }}</h3>
+      <p class="card-address">{{ b.adresse_batiment }}</p>
+      <div class="card-meta">
+        <span class="meta-item">
+          <span class="meta-icon">⬛</span>
+          {{ b.surface }} m²
+        </span>
+        <span class="meta-item">
+          <span class="meta-icon">◈</span>
+          {{ b.nombre_niveaux }} niveau(x)
+        </span>
+        {% if b.annee_construction %}
+        <span class="meta-item">
+          <span class="meta-icon">◷</span>
+          {{ b.annee_construction }}
+        </span>
+        {% endif %}
+      </div>
+      {% if b.consommation_kwh %}
+      <div class="consommation-bar">
+        <span class="conso-label">{{ b.consommation_kwh }} kWh/m²/an</span>
+        <div class="conso-track">
+          <div
+            class="conso-fill classe-bg-{{ b.classe_energetique }}"
+            style="width: {{ [b.consommation_kwh / 5, 100] | min }}%"
+          ></div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="card-footer">
+      <a
+        href="{{ url_for('batiments.detail_batiment', batiment_id=b.id) }}"
+        class="btn-card"
+      >
+        Voir détails →
+      </a>
+      <form
+        method="POST"
+        action="{{ url_for('batiments.supprimer_batiment', batiment_id=b.id) }}"
+        onsubmit="return confirm('Supprimer ce bâtiment ?');"
+      >
+        <button type="submit" class="btn-danger-sm">✕</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">◈</div>
+  <h2>Aucun bâtiment enregistré</h2>
+  <p>
+    Commencez par créer votre premier bâtiment pour effectuer un calcul de
+    déperdition thermique.
+  </p>
+  <a href="{{ url_for('batiments.nouveau_batiment') }}" class="btn-primary"
+    >Créer un bâtiment</a
+  >
+</div>
+{% endif %} {% endblock %}
