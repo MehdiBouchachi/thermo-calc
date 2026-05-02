@@ -1,0 +1,152 @@
+{% extends "base.html" %} {% block title %}ThermoCalc — Nouveau Bâtiment{%
+endblock %} {% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Nouveau Bâtiment</h1>
+    <p class="page-subtitle">Saisir les informations générales du bâtiment</p>
+  </div>
+  <a href="{{ url_for('index') }}" class="btn-secondary">← Retour</a>
+</div>
+
+<div class="form-container">
+  <form method="POST" action="{{ url_for('nouveau_batiment') }}">
+    <div class="form-section">
+      <h2 class="section-title">Identification</h2>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Code Bâtiment *</label>
+          <input
+            type="text"
+            name="code_batiment"
+            class="form-input"
+            placeholder="Ex: BAT-001"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type de Bâtiment *</label>
+          <select name="type_batiment" class="form-select" required>
+            <option value="">-- Choisir --</option>
+            <option value="École">École</option>
+            <option value="Hôpital">Hôpital</option>
+            <option value="Bureau">Bureau</option>
+            <option value="Logement collectif">Logement collectif</option>
+            <option value="Maison individuelle">Maison individuelle</option>
+            <option value="Entrepôt">Entrepôt</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Industriel">Industriel</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adresse *</label>
+        <input
+          type="text"
+          name="adresse_batiment"
+          class="form-input"
+          placeholder="Ex: 12 rue de la Paix, Alger"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Coordonnées Géographiques</label>
+        <input
+          type="text"
+          name="coordonnees_geo"
+          class="form-input"
+          placeholder="Ex: 36.7538, 3.0588"
+        />
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Caractéristiques Techniques</h2>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Surface Totale (m²) *</label>
+          <input
+            type="number"
+            name="surface"
+            step="0.01"
+            min="1"
+            class="form-input"
+            placeholder="Ex: 450"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Volume (m³)</label>
+          <input
+            type="number"
+            name="volume"
+            step="0.01"
+            min="0"
+            class="form-input"
+            placeholder="Ex: 1350"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre de Niveaux</label>
+          <input
+            type="number"
+            name="nombre_niveaux"
+            min="1"
+            value="1"
+            class="form-input"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Année de Construction</label>
+          <input
+            type="number"
+            name="annee_construction"
+            min="1800"
+            max="2026"
+            class="form-input"
+            placeholder="Ex: 1985"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre d'Occupants</label>
+          <input
+            type="number"
+            name="nombre_occupants"
+            min="0"
+            value="0"
+            class="form-input"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Zone Climatique</label>
+          <select name="id_zone_climatique" class="form-select">
+            <option value="">-- Choisir --</option>
+            {% for z in zones %}
+            <option value="{{ z.id }}">{{ z.nom_zone }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Sources d'Énergie</h2>
+      <p class="muted">Sélectionnez une ou plusieurs sources.</p>
+      <div class="checkbox-grid">
+        {% for s in sources %}
+        <label class="checkbox-label">
+          <input type="checkbox" name="sources" value="{{ s.id }}" />
+          <span class="checkbox-custom"></span>
+          {{ s.nom_source }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('index') }}" class="btn-secondary">Annuler</a>
+      <button type="submit" class="btn-primary">Créer le Bâtiment →</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

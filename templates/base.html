@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ThermoCalc - Déperditions Thermiques{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">
+        <span class="nav-icon">◈</span>
+        <span class="nav-title">ThermoCalc</span>
+        <span class="nav-sub">SIA M1-IL 2026</span>
+    </div>
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+            Bâtiments
+        </a>
+        <a href="{{ url_for('statistiques') }}" class="nav-link {% if request.endpoint == 'statistiques' %}active{% endif %}">
+            Statistiques
+        </a>
+        <a href="{{ url_for('nouveau_batiment') }}" class="nav-btn">
+            + Nouveau Bâtiment
+        </a>
+    </div>
+</nav>
+
+<main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <span>Département d'Informatique</span>
+    <span class="sep">·</span>
+    <span>TP 2026 — SIA M1-IL</span>
+    <span class="sep">·</span>
+    <span>Calcul de Déperditions Thermiques</span>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

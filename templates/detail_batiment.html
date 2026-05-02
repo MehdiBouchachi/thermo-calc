@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% block title %}ThermoCalc — {{ batiment.code_batiment }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ batiment.code_batiment }}</h1>
+        <p class="page-subtitle">{{ batiment.type_batiment }} · {{ batiment.adresse_batiment }}</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('index') }}" class="btn-secondary">← Retour</a>
+        <button onclick="lancerCalcul({{ batiment.id }}, {{ batiment.surface }})" class="btn-primary btn-calcul">
+            ⚡ Calculer Déperditions
+        </button>
+    </div>
+</div>
+
+<!-- Résultat Calcul -->
+<div id="resultat-panel" class="resultat-panel {% if resultat %}visible{% endif %}">
+    {% if resultat %}
+    <div class="resultat-inner">
+        <div class="resultat-classe">
+            <div class="grande-classe classe-{{ resultat.classe_energetique }}">{{ resultat.classe_energetique }}</div>
+            <div class="classe-label">Classe Énergétique</div>
+        </div>
+        <div class="resultat-stats">
+            <div class="stat-item">
+                <span class="stat-val" id="r-murs">—</span>
+                <span class="stat-key">Dép. Murs (W/K)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val" id="r-planchers">—</span>
+                <span class="stat-key">Dép. Planchers (W/K)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val" id="r-toitures">—</span>
+                <span class="stat-key">Dép. Toitures (W/K)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val" id="r-ouvrants">—</span>
+                <span class="stat-key">Dép. Ouvrants (W/K)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-val" id="r-total">{{ resultat.deperdition_totale }}</span>
+                <span class="stat-key">Déperdition Totale (W/K)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-val" id="r-conso">{{ resultat.consommation_kwh }}</span>
+                <span class="stat-key">Consommation kWh/m²/an</span>
+            </div>
+        </div>
+        <div class="dpe-scale">
+            {% for c, color, label in [('A','#00a550','≤70'),('B','#52b747','71-110'),('C','#c8d400','111-180'),('D','#ffcc00','181-250'),('E','#f0820f','251-330'),('F','#e2001a','331-420'),('G','#c00','421+')] %}
+            <div class="dpe-row {% if resultat.classe_energetique == c %}dpe-active{% endif %}"
+                 style="--dpe-color: {{ color }}; width: {{ loop.index * 12 + 30 }}%">
+                <span class="dpe-letter">{{ c }}</span>
+                <span class="dpe-range">{{ label }} kWh/m²/an</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="resultat-placeholder">
+        <span>Aucun calcul effectué — cliquez sur "Calculer Déperditions"</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Info bâtiment -->
+<div class="info-grid">
+    <div class="info-card">
+        <span class="info-label">Surface</span>
+        <span class="info-val">{{ batiment.surface }} m²</span>
+    </div>
+    <div class="info-card">
+        <span class="info-label">Volume</span>
+        <span class="info-val">{{ batiment.volume or '—' }} m³</span>
+    </div>
+    <div class="info-card">
+        <span class="info-label">Niveaux</span>
+        <span class="info-val">{{ batiment.nombre_niveaux }}</span>
+    </div>
+    <div class="info-card">
+        <span class="info-label">Occupants</span>
+        <span class="info-val">{{ batiment.nombre_occupants }}</span>
+    </div>
+    <div class="info-card">
+        <span class="info-label">Construction</span>
+        <span class="info-val">{{ batiment.annee_construction or '—' }}</span>
+    </div>
+    <div class="info-card">
+        <span class="info-label">Zone Climatique</span>
+        <span class="info-val">{{ batiment.nom_zone or '—' }}</span>
+    </div>
+</div>
+
+<!-- Onglets composants -->
+<div class="composants-section">
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('murs')">Murs ({{ murs|length }})</button>
+        <button class="tab" onclick="showTab('planchers')">Planchers ({{ planchers|length }})</button>
+        <button class="tab" onclick="showTab('toitures')">Toitures ({{ toitures|length }})</button>
+        <button class="tab" onclick="showTab('ouvrants')">Ouvrants ({{ ouvrants|length }})</button>
+    </div>
+
+    <!-- MURS -->
+    <div id="tab-murs" class="tab-content active">
+        <div class="tab-header">
+            <h3>Murs du bâtiment</h3>
+            <button class="btn-add" onclick="toggleForm('form-mur')">+ Ajouter un mur</button>
+        </div>
+
+        <div id="form-mur" class="add-form hidden">
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label">Type de mur</label>
+                    <select id="mur-type" class="form-select">
+                        {% for t in types_mur %}
+                        <option value="{{ t.id }}" data-k="{{ t.k_mur }}">{{ t.nom_type }} (k={{ t.k_mur }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Longueur (m)</label>
+                    <input type="number" id="mur-longueur" step="0.01" min="0" class="form-input" placeholder="Ex: 8.5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Hauteur (m)</label>
+                    <input type="number" id="mur-hauteur" step="0.01" min="0" class="form-input" placeholder="Ex: 3.0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">État</label>
+                    <select id="mur-etat" class="form-select">
+                        <option>Bon état</option>
+                        <option>État moyen</option>
+                        <option>Mauvais état</option>
+                    </select>
+                </div>
+                <div class="form-group form-preview">
+                    <label class="form-label">Aperçu déperdition</label>
+                    <div class="preview-val" id="mur-preview">—</div>
+                </div>
+            </div>
+            <button onclick="ajouterMur({{ batiment.id }})" class="btn-primary">Enregistrer le mur</button>
+        </div>
+
+        <table class="data-table" id="table-murs">
+            <thead>
+                <tr><th>#</th><th>Type</th><th>Longueur</th><th>Hauteur</th><th>Surface</th><th>k (W/m²K)</th><th>Déperdition (W/K)</th><th>État</th></tr>
+            </thead>
+            <tbody>
+                {% for m in murs %}
+                <tr>
+                    <td>{{ m.numero_mur }}</td>
+                    <td>{{ m.nom_type }}</td>
+                    <td>{{ m.longueur_mur }} m</td>
+                    <td>{{ m.hauteur_mur }} m</td>
+                    <td>{{ (m.longueur_mur * m.hauteur_mur)|round(2) }} m²</td>
+                    <td>{{ m.k_mur }}</td>
+                    <td class="dep-cell">{{ m.deperdition_mur }}</td>
+                    <td>{{ m.etat_mur }}</td>
+                </tr>
+                {% endfor %}
+                {% if not murs %}
+                <tr><td colspan="8" class="empty-row">Aucun mur enregistré</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PLANCHERS -->
+    <div id="tab-planchers" class="tab-content">
+        <div class="tab-header">
+            <h3>Planchers du bâtiment</h3>
+            <button class="btn-add" onclick="toggleForm('form-plancher')">+ Ajouter un plancher</button>
+        </div>
+        <div id="form-plancher" class="add-form hidden">
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label">Type de plancher</label>
+                    <select id="plancher-type" class="form-select">
+                        {% for t in types_plancher %}
+                        <option value="{{ t.id }}" data-k="{{ t.k_plancher }}">{{ t.nom_type }} (k={{ t.k_plancher }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Surface (m²)</label>
+                    <input type="number" id="plancher-surface" step="0.01" min="0" class="form-input" placeholder="Ex: 120">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">État</label>
+                    <select id="plancher-etat" class="form-select">
+                        <option>Bon état</option><option>État moyen</option><option>Mauvais état</option>
+                    </select>
+                </div>
+                <div class="form-group form-preview">
+                    <label class="form-label">Aperçu déperdition</label>
+                    <div class="preview-val" id="plancher-preview">—</div>
+                </div>
+            </div>
+            <button onclick="ajouterPlancher({{ batiment.id }})" class="btn-primary">Enregistrer le plancher</button>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr><th>#</th><th>Type</th><th>Surface (m²)</th><th>k (W/m²K)</th><th>Déperdition (W/K)</th><th>État</th></tr>
+            </thead>
+            <tbody>
+                {% for p in planchers %}
+                <tr>
+                    <td>{{ p.numero_plancher }}</td>
+                    <td>{{ p.nom_type }}</td>
+                    <td>{{ p.surface_plancher }}</td>
+                    <td>{{ p.k_plancher }}</td>
+                    <td class="dep-cell">{{ p.deperdition_plancher }}</td>
+                    <td>{{ p.etat_plancher }}</td>
+                </tr>
+                {% endfor %}
+                {% if not planchers %}
+                <tr><td colspan="6" class="empty-row">Aucun plancher enregistré</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TOITURES -->
+    <div id="tab-toitures" class="tab-content">
+        <div class="tab-header">
+            <h3>Toitures du bâtiment</h3>
+            <button class="btn-add" onclick="toggleForm('form-toiture')">+ Ajouter une toiture</button>
+        </div>
+        <div id="form-toiture" class="add-form hidden">
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label">Type de toiture</label>
+                    <select id="toiture-type" class="form-select">
+                        {% for t in types_toiture %}
+                        <option value="{{ t.id }}" data-k="{{ t.k_toiture }}">{{ t.nom_type }} (k={{ t.k_toiture }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Surface (m²)</label>
+                    <input type="number" id="toiture-surface" step="0.01" min="0" class="form-input" placeholder="Ex: 200">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">État</label>
+                    <select id="toiture-etat" class="form-select">
+                        <option>Bon état</option><option>État moyen</option><option>Mauvais état</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="ajouterToiture({{ batiment.id }})" class="btn-primary">Enregistrer la toiture</button>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr><th>#</th><th>Type</th><th>Surface (m²)</th><th>k (W/m²K)</th><th>Déperdition (W/K)</th><th>État</th></tr>
+            </thead>
+            <tbody>
+                {% for t in toitures %}
+                <tr>
+                    <td>{{ t.numero_toiture }}</td>
+                    <td>{{ t.nom_type }}</td>
+                    <td>{{ t.surface_toit }}</td>
+                    <td>{{ t.k_toiture }}</td>
+                    <td class="dep-cell">{{ t.deperdition_toiture }}</td>
+                    <td>{{ t.etat_toiture }}</td>
+                </tr>
+                {% endfor %}
+                {% if not toitures %}
+                <tr><td colspan="6" class="empty-row">Aucune toiture enregistrée</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- OUVRANTS -->
+    <div id="tab-ouvrants" class="tab-content">
+        <div class="tab-header">
+            <h3>Ouvrants du bâtiment</h3>
+            <button class="btn-add" onclick="toggleForm('form-ouvrant')">+ Ajouter un ouvrant</button>
+        </div>
+        <div id="form-ouvrant" class="add-form hidden">
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label">Type d'ouvrant</label>
+                    <select id="ouvrant-type" class="form-select">
+                        {% for t in types_ouvrant %}
+                        <option value="{{ t.id }}" data-k="{{ t.k_ouvrant }}">{{ t.nom_type }} (k={{ t.k_ouvrant }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Surface (m²)</label>
+                    <input type="number" id="ouvrant-surface" step="0.01" min="0" class="form-input" placeholder="Ex: 2.4">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">État</label>
+                    <select id="ouvrant-etat" class="form-select">
+                        <option>Bon état</option><option>État moyen</option><option>Mauvais état</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="ajouterOuvrant({{ batiment.id }})" class="btn-primary">Enregistrer l'ouvrant</button>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr><th>#</th><th>Type</th><th>Surface (m²)</th><th>k (W/m²K)</th><th>Déperdition (W/K)</th><th>État</th></tr>
+            </thead>
+            <tbody>
+                {% for o in ouvrants %}
+                <tr>
+                    <td>{{ o.numero_ouvrant }}</td>
+                    <td>{{ o.nom_type }}</td>
+                    <td>{{ o.surface_ouvrant }}</td>
+                    <td>{{ o.k_ouvrant }}</td>
+                    <td class="dep-cell">{{ o.deperdition_ouvrant }}</td>
+                    <td>{{ o.etat_ouvrant }}</td>
+                </tr>
+                {% endfor %}
+                {% if not ouvrants %}
+                <tr><td colspan="6" class="empty-row">Aucun ouvrant enregistré</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const BAT_ID = {{ batiment.id }};
+const BAT_SURFACE = {{ batiment.surface }};
+</script>
+{% endblock %}
