@@ -2,150 +2,248 @@
 endblock %} {% block content %}
 <div class="page-header">
   <div>
-    <h1 class="page-title">Nouveau Bâtiment</h1>
-    <p class="page-subtitle">Saisir les informations générales du bâtiment</p>
+    <h1 class="page-title">Créer un Nouveau Bâtiment</h1>
+    <p class="page-subtitle">
+      Saisissez les informations du bâtiment pour débuter l'analyse
+    </p>
   </div>
-  <a href="{{ url_for('index') }}" class="btn-secondary">← Retour</a>
+  <a href="{{ url_for('index') }}" class="btn-secondary">← Retour à la liste</a>
 </div>
 
-<div class="form-container">
-  <form method="POST" action="{{ url_for('nouveau_batiment') }}">
-    <div class="form-section">
-      <h2 class="section-title">Identification</h2>
-      <div class="form-grid-2">
+<div class="form-container-new">
+  <form
+    method="POST"
+    action="{{ url_for('nouveau_batiment') }}"
+    class="modern-form"
+  >
+    <!-- SECTION 1: IDENTIFICATION -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-icon">🏢</div>
+        <div>
+          <h2 class="card-title">Identification du Bâtiment</h2>
+          <p class="card-desc">Informations basiques et localisation</p>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Code Bâtiment</span>
+              <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              name="code_batiment"
+              class="form-input"
+              placeholder="BAT-001"
+              required
+            />
+            <span class="form-hint">Identifiant unique du bâtiment</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Type de Bâtiment</span>
+              <span class="required">*</span>
+            </label>
+            <select name="type_batiment" class="form-select" required>
+              <option value="">Sélectionner un type...</option>
+              <option value="École">🎓 École</option>
+              <option value="Hôpital">🏥 Hôpital</option>
+              <option value="Bureau">💼 Bureau</option>
+              <option value="Logement collectif">🏘️ Logement collectif</option>
+              <option value="Maison individuelle">
+                🏠 Maison individuelle
+              </option>
+              <option value="Entrepôt">📦 Entrepôt</option>
+              <option value="Commerce">🛍️ Commerce</option>
+              <option value="Industriel">🏭 Industriel</option>
+              <option value="Autre">❓ Autre</option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label class="form-label">Code Bâtiment *</label>
+          <label class="form-label">
+            <span class="label-text">Adresse Complète</span>
+            <span class="required">*</span>
+          </label>
           <input
             type="text"
-            name="code_batiment"
+            name="adresse_batiment"
             class="form-input"
-            placeholder="Ex: BAT-001"
+            placeholder="12 rue de la Paix, Alger"
             required
           />
+          <span class="form-hint">Adresse physique du bâtiment</span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Type de Bâtiment *</label>
-          <select name="type_batiment" class="form-select" required>
-            <option value="">-- Choisir --</option>
-            <option value="École">École</option>
-            <option value="Hôpital">Hôpital</option>
-            <option value="Bureau">Bureau</option>
-            <option value="Logement collectif">Logement collectif</option>
-            <option value="Maison individuelle">Maison individuelle</option>
-            <option value="Entrepôt">Entrepôt</option>
-            <option value="Commerce">Commerce</option>
-            <option value="Industriel">Industriel</option>
-            <option value="Autre">Autre</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Adresse *</label>
-        <input
-          type="text"
-          name="adresse_batiment"
-          class="form-input"
-          placeholder="Ex: 12 rue de la Paix, Alger"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Coordonnées Géographiques</label>
-        <input
-          type="text"
-          name="coordonnees_geo"
-          class="form-input"
-          placeholder="Ex: 36.7538, 3.0588"
-        />
-      </div>
-    </div>
 
-    <div class="form-section">
-      <h2 class="section-title">Caractéristiques Techniques</h2>
-      <div class="form-grid-3">
         <div class="form-group">
-          <label class="form-label">Surface Totale (m²) *</label>
+          <label class="form-label">
+            <span class="label-text">Coordonnées Géographiques</span>
+            <span class="optional">(optionnel)</span>
+          </label>
           <input
-            type="number"
-            name="surface"
-            step="0.01"
-            min="1"
+            type="text"
+            name="coordonnees_geo"
             class="form-input"
-            placeholder="Ex: 450"
-            required
+            placeholder="36.7538, 3.0588 (latitude, longitude)"
           />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Volume (m³)</label>
-          <input
-            type="number"
-            name="volume"
-            step="0.01"
-            min="0"
-            class="form-input"
-            placeholder="Ex: 1350"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nombre de Niveaux</label>
-          <input
-            type="number"
-            name="nombre_niveaux"
-            min="1"
-            value="1"
-            class="form-input"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Année de Construction</label>
-          <input
-            type="number"
-            name="annee_construction"
-            min="1800"
-            max="2026"
-            class="form-input"
-            placeholder="Ex: 1985"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nombre d'Occupants</label>
-          <input
-            type="number"
-            name="nombre_occupants"
-            min="0"
-            value="0"
-            class="form-input"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Zone Climatique</label>
-          <select name="id_zone_climatique" class="form-select">
-            <option value="">-- Choisir --</option>
-            {% for z in zones %}
-            <option value="{{ z.id }}">{{ z.nom_zone }}</option>
-            {% endfor %}
-          </select>
+          <span class="form-hint"
+            >Format: latitude, longitude (ex: 36.75, 3.06)</span
+          >
         </div>
       </div>
     </div>
 
-    <div class="form-section">
-      <h2 class="section-title">Sources d'Énergie</h2>
-      <p class="muted">Sélectionnez une ou plusieurs sources.</p>
-      <div class="checkbox-grid">
-        {% for s in sources %}
-        <label class="checkbox-label">
-          <input type="checkbox" name="sources" value="{{ s.id }}" />
-          <span class="checkbox-custom"></span>
-          {{ s.nom_source }}
-        </label>
-        {% endfor %}
+    <!-- SECTION 2: CARACTÉRISTIQUES TECHNIQUES -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-icon">📐</div>
+        <div>
+          <h2 class="card-title">Caractéristiques Techniques</h2>
+          <p class="card-desc">Dimensions et spécifications du bâtiment</p>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Surface Totale</span>
+              <span class="required">*</span>
+            </label>
+            <div class="input-with-unit">
+              <input
+                type="number"
+                name="surface"
+                step="0.01"
+                min="1"
+                class="form-input"
+                placeholder="450"
+                required
+              />
+              <span class="unit">m²</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Volume</span>
+              <span class="optional">(optionnel)</span>
+            </label>
+            <div class="input-with-unit">
+              <input
+                type="number"
+                name="volume"
+                step="0.01"
+                min="0"
+                class="form-input"
+                placeholder="1350"
+              />
+              <span class="unit">m³</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Nombre de Niveaux</span>
+            </label>
+            <input
+              type="number"
+              name="nombre_niveaux"
+              min="1"
+              value="1"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Année de Construction</span>
+            </label>
+            <input
+              type="number"
+              name="annee_construction"
+              min="1800"
+              max="2026"
+              class="form-input"
+              placeholder="2015"
+            />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Nombre d'Occupants</span>
+            </label>
+            <input
+              type="number"
+              name="nombre_occupants"
+              min="0"
+              value="0"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-text">Zone Climatique</span>
+            </label>
+            <select name="id_zone_climatique" class="form-select">
+              <option value="">Sélectionner une zone...</option>
+              {% for z in zones %}
+              <option value="{{ z.id }}">{{ z.nom_zone }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="form-actions">
-      <a href="{{ url_for('index') }}" class="btn-secondary">Annuler</a>
-      <button type="submit" class="btn-primary">Créer le Bâtiment →</button>
+    <!-- SECTION 3: SOURCES D'ÉNERGIE -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-icon">⚡</div>
+        <div>
+          <h2 class="card-title">Sources d'Énergie</h2>
+          <p class="card-desc">Systèmes énergétiques du bâtiment</p>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <p class="energy-intro">
+          Sélectionnez une ou plusieurs sources d'énergie utilisées par ce
+          bâtiment
+        </p>
+        <div class="checkbox-grid-new">
+          {% for s in sources %}
+          <label class="checkbox-label-new">
+            <input
+              type="checkbox"
+              name="sources"
+              value="{{ s.id }}"
+              class="checkbox-input"
+            />
+            <span class="checkbox-visual"></span>
+            <span class="checkbox-text">{{ s.nom_source }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="form-actions-new">
+      <a href="{{ url_for('index') }}" class="btn-secondary-large">Annuler</a>
+      <button type="submit" class="btn-primary-large">
+        <span>✓ Créer le Bâtiment</span>
+      </button>
     </div>
   </form>
 </div>

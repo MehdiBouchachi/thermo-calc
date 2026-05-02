@@ -18,7 +18,7 @@ app.secret_key = 'thermique_secret_key_2026'
 DB_CONFIG = {
     'host': 'localhost',        # Hôte MySQL
     'user': 'root',             # Utilisateur MySQL
-    'password': 'Malak2003',             # Mot de passe MySQL
+    'password': 'life3002%%IdHeM',             # Mot de passe MySQL
     'database': 'thermique_db',
     'charset': 'utf8mb4'
 }
