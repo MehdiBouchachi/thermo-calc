@@ -29,34 +29,48 @@ block content %}
 >
   <div class="resultat-inner">
     <div class="resultat-classe">
-      <div class="grande-classe classe-{{ resultat.classe_energetique if resultat else 'A' }}">
+      <div
+        class="grande-classe classe-{{ resultat.classe_energetique if resultat else 'A' }}"
+      >
         {{ resultat.classe_energetique if resultat else 'A' }}
       </div>
       <div class="classe-label">Classe Énergétique</div>
     </div>
     <div class="resultat-stats">
       <div class="stat-item">
-        <span class="stat-val" id="r-murs">{{ resultat.deperdition_murs if resultat else '—' }}</span>
+        <span class="stat-val" id="r-murs"
+          >{{ resultat.deperdition_murs if resultat else '—' }}</span
+        >
         <span class="stat-key">Dép. Murs (W/K)</span>
       </div>
       <div class="stat-item">
-        <span class="stat-val" id="r-planchers">{{ resultat.deperdition_planchers if resultat else '—' }}</span>
+        <span class="stat-val" id="r-planchers"
+          >{{ resultat.deperdition_planchers if resultat else '—' }}</span
+        >
         <span class="stat-key">Dép. Planchers (W/K)</span>
       </div>
       <div class="stat-item">
-        <span class="stat-val" id="r-toitures">{{ resultat.deperdition_toitures if resultat else '—' }}</span>
+        <span class="stat-val" id="r-toitures"
+          >{{ resultat.deperdition_toitures if resultat else '—' }}</span
+        >
         <span class="stat-key">Dép. Toitures (W/K)</span>
       </div>
       <div class="stat-item">
-        <span class="stat-val" id="r-ouvrants">{{ resultat.deperdition_ouvrants if resultat else '—' }}</span>
+        <span class="stat-val" id="r-ouvrants"
+          >{{ resultat.deperdition_ouvrants if resultat else '—' }}</span
+        >
         <span class="stat-key">Dép. Ouvrants (W/K)</span>
       </div>
       <div class="stat-item highlight">
-        <span class="stat-val" id="r-total">{{ resultat.deperdition_totale if resultat else '—' }}</span>
+        <span class="stat-val" id="r-total"
+          >{{ resultat.deperdition_totale if resultat else '—' }}</span
+        >
         <span class="stat-key">Déperdition Totale (W/K)</span>
       </div>
       <div class="stat-item highlight">
-        <span class="stat-val" id="r-conso">{{ resultat.consommation_kwh if resultat else '—' }}</span>
+        <span class="stat-val" id="r-conso"
+          >{{ resultat.consommation_kwh if resultat else '—' }}</span
+        >
         <span class="stat-key">Consommation kWh/m²/an</span>
       </div>
     </div>
@@ -74,7 +88,16 @@ block content %}
       {% endfor %}
     </div>
   </div>
-  <div class="resultat-placeholder" {% if resultat %}style="display: none;"{% endif %}>
+  <div
+    class="resultat-placeholder"
+    {%
+    if
+    resultat
+    %}style="display: none;"
+    {%
+    endif
+    %}
+  >
     <span>Aucun calcul effectué — cliquez sur "Calculer Déperditions"</span>
   </div>
 </div>
@@ -450,7 +473,7 @@ block content %}
 <script>
   const BAT_ID = {{ batiment.id }};
   const BAT_SURFACE = {{ batiment.surface }};
-  
+
   // Add event listener to calculate button when DOM is ready
   document.addEventListener('DOMContentLoaded', function() {
     const calcButton = document.querySelector('.btn-calcul');

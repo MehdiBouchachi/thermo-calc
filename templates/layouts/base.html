@@ -74,11 +74,11 @@
     <script src="{{ url_for('static', filename='js/calcul.js') }}"></script>
     <script>
       // Verify functions are loaded
-      console.log('Functions loaded:', {
-        showLoader: typeof showLoader !== 'undefined',
-        hideLoader: typeof hideLoader !== 'undefined',
-        lancerCalcul: typeof lancerCalcul !== 'undefined',
-        ajouterMur: typeof ajouterMur !== 'undefined'
+      console.log("Functions loaded:", {
+        showLoader: typeof showLoader !== "undefined",
+        hideLoader: typeof hideLoader !== "undefined",
+        lancerCalcul: typeof lancerCalcul !== "undefined",
+        ajouterMur: typeof ajouterMur !== "undefined",
       });
     </script>
     {% block scripts %}{% endblock %}
