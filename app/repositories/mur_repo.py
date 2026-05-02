@@ -1,21 +1,15 @@
-# thermocalc/app/repositories/mur_repo.py
-"""
-Repository for Mur (Wall) database operations.
-Handles SQL queries for wall component management.
-"""
+"""Repository for Mur (wall) database operations."""
 
 
-def get_walls_by_batiment(conn, batiment_id):
-    """
-    Fetch all walls for a building.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building.
-    
-    Returns:
-        List of dictionaries containing wall data.
-    """
+def find_all_types(conn) -> list[dict]:
+    """Returns all wall types."""
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SELECT * FROM type_mur")
+    return cur.fetchall()
+
+
+def find_by_batiment(conn, batiment_id: int) -> list[dict]:
+    """Returns all mur rows for a batiment, joined with type data."""
     cur = conn.cursor(dictionary=True)
     cur.execute("""
         SELECT m.*, tm.nom_type, tm.k_mur FROM mur m
@@ -25,74 +19,26 @@ def get_walls_by_batiment(conn, batiment_id):
     return cur.fetchall()
 
 
-def get_next_wall_number(conn, batiment_id):
-    """
-    Get the next wall number for a building.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building.
-    
-    Returns:
-        Next wall number (integer).
-    """
+def get_next_numero(conn, batiment_id: int) -> int:
+    """Returns the next wall number for a batiment."""
     cur = conn.cursor(dictionary=True)
-    cur.execute(
-        "SELECT COUNT(*) as cnt FROM mur WHERE id_batiment = %s",
-        (batiment_id,)
-    )
+    cur.execute("SELECT COUNT(*) as cnt FROM mur WHERE id_batiment = %s", (batiment_id,))
     return cur.fetchone()['cnt'] + 1
 
 
-def insert_wall(conn, batiment_id, numero, length, height, condition, type_id, deperdition):
-    """
-    Insert a new wall record.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building.
-        numero: Wall number.
-        length: Length in meters.
-        height: Height in meters.
-        condition: Condition of the wall (e.g., 'Bon état').
-        type_id: ID of the wall type.
-        deperdition: Heat loss value in W/K.
-    """
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO mur (id_batiment, numero_mur, longueur_mur, hauteur_mur, etat_mur,
-                        id_type_mur, deperdition_mur)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """, (batiment_id, numero, length, height, condition, type_id, deperdition))
-
-
-def get_wall_type_k(conn, type_id):
-    """
-    Get the thermal transmission coefficient (k) for a wall type.
-    
-    Args:
-        conn: Active database connection.
-        type_id: ID of the wall type.
-    
-    Returns:
-        Thermal transmission coefficient as float.
-    """
+def get_k(conn, type_id: int) -> float:
+    """Returns the k_mur coefficient for a given type id."""
     cur = conn.cursor(dictionary=True)
     cur.execute("SELECT k_mur FROM type_mur WHERE id = %s", (type_id,))
-    result = cur.fetchone()
-    return float(result['k_mur']) if result else 0.0
+    return float(cur.fetchone()['k_mur'])
 
 
-def get_all_wall_types(conn):
-    """
-    Fetch all wall types.
-    
-    Args:
-        conn: Active database connection.
-    
-    Returns:
-        List of dictionaries with wall type data.
-    """
+def insert(conn, batiment_id: int, numero: int, data: dict, deperdition: float) -> None:
+    """Inserts a new mur row with pre-computed deperdition."""
     cur = conn.cursor(dictionary=True)
-    cur.execute("SELECT * FROM type_mur")
-    return cur.fetchall()
+    cur.execute("""
+        INSERT INTO mur (id_batiment, numero_mur, longueur_mur, hauteur_mur,
+                         etat_mur, id_type_mur, deperdition_mur)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, (batiment_id, numero, data['longueur'], data['hauteur'],
+          data.get('etat', 'Bon état'), data['id_type_mur'], deperdition))

@@ -1,21 +1,15 @@
-# thermocalc/app/repositories/toiture_repo.py
-"""
-Repository for Toiture (Roof) database operations.
-Handles SQL queries for roof component management.
-"""
+"""Repository for Toiture (roof) database operations."""
 
 
-def get_roofs_by_batiment(conn, batiment_id):
-    """
-    Fetch all roofs for a building.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building.
-    
-    Returns:
-        List of dictionaries containing roof data.
-    """
+def find_all_types(conn) -> list[dict]:
+    """Returns all roof types."""
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SELECT * FROM type_toiture")
+    return cur.fetchall()
+
+
+def find_by_batiment(conn, batiment_id: int) -> list[dict]:
+    """Returns all toiture rows for a batiment, joined with type data."""
     cur = conn.cursor(dictionary=True)
     cur.execute("""
         SELECT t.*, tt.nom_type, tt.k_toiture FROM toiture t
@@ -25,73 +19,26 @@ def get_roofs_by_batiment(conn, batiment_id):
     return cur.fetchall()
 
 
-def get_next_roof_number(conn, batiment_id):
-    """
-    Get the next roof number for a building.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building.
-    
-    Returns:
-        Next roof number (integer).
-    """
+def get_next_numero(conn, batiment_id: int) -> int:
+    """Returns the next roof number for a batiment."""
     cur = conn.cursor(dictionary=True)
-    cur.execute(
-        "SELECT COUNT(*) as cnt FROM toiture WHERE id_batiment = %s",
-        (batiment_id,)
-    )
+    cur.execute("SELECT COUNT(*) as cnt FROM toiture WHERE id_batiment = %s", (batiment_id,))
     return cur.fetchone()['cnt'] + 1
 
 
-def insert_roof(conn, batiment_id, numero, condition, surface, type_id, deperdition):
-    """
-    Insert a new roof record.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building.
-        numero: Roof number.
-        condition: Condition of the roof.
-        surface: Surface area in m².
-        type_id: ID of the roof type.
-        deperdition: Heat loss value in W/K.
-    """
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO toiture (id_batiment, numero_toiture, etat_toiture,
-                            surface_toit, id_type_toiture, deperdition_toiture)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (batiment_id, numero, condition, surface, type_id, deperdition))
-
-
-def get_roof_type_k(conn, type_id):
-    """
-    Get the thermal transmission coefficient for a roof type.
-    
-    Args:
-        conn: Active database connection.
-        type_id: ID of the roof type.
-    
-    Returns:
-        Thermal transmission coefficient as float.
-    """
+def get_k(conn, type_id: int) -> float:
+    """Returns the k_toiture coefficient for a given type id."""
     cur = conn.cursor(dictionary=True)
     cur.execute("SELECT k_toiture FROM type_toiture WHERE id = %s", (type_id,))
-    result = cur.fetchone()
-    return float(result['k_toiture']) if result else 0.0
+    return float(cur.fetchone()['k_toiture'])
 
 
-def get_all_roof_types(conn):
-    """
-    Fetch all roof types.
-    
-    Args:
-        conn: Active database connection.
-    
-    Returns:
-        List of dictionaries with roof type data.
-    """
+def insert(conn, batiment_id: int, numero: int, data: dict, deperdition: float) -> None:
+    """Inserts a new toiture row with pre-computed deperdition."""
     cur = conn.cursor(dictionary=True)
-    cur.execute("SELECT * FROM type_toiture")
-    return cur.fetchall()
+    cur.execute("""
+        INSERT INTO toiture (id_batiment, numero_toiture, surface_toit,
+                             etat_toiture, id_type_toiture, deperdition_toiture)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (batiment_id, numero, data['surface'], data.get('etat', 'Bon état'),
+          data['id_type_toiture'], deperdition))

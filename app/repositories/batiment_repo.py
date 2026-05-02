@@ -1,22 +1,8 @@
-# thermocalc/app/repositories/batiment_repo.py
-"""
-Repository for Batiment (Building) database operations.
-Handles all SQL queries related to building data.
-"""
-
-from mysql.connector import Error
+"""Repository for Batiment (building) database operations."""
 
 
-def get_all_batiments(conn):
-    """
-    Fetch all buildings with zone information.
-    
-    Args:
-        conn: Active database connection.
-    
-    Returns:
-        List of dictionaries containing building data.
-    """
+def find_all(conn) -> list[dict]:
+    """Returns all batiments joined with zone and result data, newest first."""
     cur = conn.cursor(dictionary=True)
     cur.execute("""
         SELECT b.*, z.nom_zone, r.classe_energetique, r.consommation_kwh
@@ -28,17 +14,8 @@ def get_all_batiments(conn):
     return cur.fetchall()
 
 
-def get_batiment_by_id(conn, batiment_id):
-    """
-    Fetch a single building by ID.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building to fetch.
-    
-    Returns:
-        Dictionary with building data, or None if not found.
-    """
+def find_by_id(conn, batiment_id: int) -> dict | None:
+    """Returns a single batiment row with zone info, or None."""
     cur = conn.cursor(dictionary=True)
     cur.execute("""
         SELECT b.*, z.nom_zone FROM batiment b
@@ -48,17 +25,8 @@ def get_batiment_by_id(conn, batiment_id):
     return cur.fetchone()
 
 
-def insert_batiment(conn, data):
-    """
-    Insert a new building record.
-    
-    Args:
-        conn: Active database connection.
-        data: Dictionary containing batiment fields.
-    
-    Returns:
-        ID of the inserted building (lastrowid).
-    """
+def insert(conn, data: dict) -> int:
+    """Inserts a new batiment row. Returns the new row id."""
     cur = conn.cursor(dictionary=True)
     cur.execute("""
         INSERT INTO batiment (code_batiment, adresse_batiment, coordonnees_geo,
@@ -66,12 +34,10 @@ def insert_batiment(conn, data):
             nombre_niveaux, nombre_occupants, id_zone_climatique)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
-        data.get('code_batiment'),
-        data.get('adresse_batiment'),
-        data.get('coordonnees_geo', ''),
-        data.get('type_batiment'),
+        data.get('code_batiment'), data.get('adresse_batiment'),
+        data.get('coordonnees_geo', ''), data.get('type_batiment'),
         float(data.get('surface', 0)),
-        float(data.get('volume', 0)) if data.get('volume') else None,
+        float(data.get('volume')) if data.get('volume') else None,
         int(data.get('annee_construction')) if data.get('annee_construction') else None,
         int(data.get('nombre_niveaux', 1)),
         int(data.get('nombre_occupants', 0)),
@@ -80,59 +46,31 @@ def insert_batiment(conn, data):
     return cur.lastrowid
 
 
-def delete_batiment(conn, batiment_id):
-    """
-    Delete a building by ID.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building to delete.
-    """
-    cur = conn.cursor()
+def delete(conn, batiment_id: int) -> None:
+    """Deletes a batiment by id. Cascades to all composants via FK."""
+    cur = conn.cursor(dictionary=True)
     cur.execute("DELETE FROM batiment WHERE id = %s", (batiment_id,))
 
 
-def add_source_energy(conn, batiment_id, source_id):
-    """
-    Associate an energy source with a building.
-    
-    Args:
-        conn: Active database connection.
-        batiment_id: ID of the building.
-        source_id: ID of the energy source.
-    """
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO batiment_source (id_batiment, id_source) VALUES (%s, %s)",
-        (batiment_id, source_id)
-    )
-
-
-def get_zones(conn):
-    """
-    Fetch all climate zones.
-    
-    Args:
-        conn: Active database connection.
-    
-    Returns:
-        List of dictionaries with zone data.
-    """
+def find_all_zones(conn) -> list[dict]:
+    """Returns all climate zones ordered by name."""
     cur = conn.cursor(dictionary=True)
     cur.execute("SELECT * FROM zone_climatique ORDER BY nom_zone")
     return cur.fetchall()
 
 
-def get_sources(conn):
-    """
-    Fetch all energy sources.
-    
-    Args:
-        conn: Active database connection.
-    
-    Returns:
-        List of dictionaries with energy source data.
-    """
+def find_all_sources(conn) -> list[dict]:
+    """Returns all energy sources ordered by name."""
     cur = conn.cursor(dictionary=True)
     cur.execute("SELECT * FROM source_energie ORDER BY nom_source")
     return cur.fetchall()
+
+
+def insert_sources(conn, batiment_id: int, source_ids: list) -> None:
+    """Links a list of energy source ids to a batiment."""
+    cur = conn.cursor(dictionary=True)
+    for sid in source_ids:
+        cur.execute(
+            "INSERT INTO batiment_source VALUES (%s, %s)",
+            (batiment_id, sid)
+        )

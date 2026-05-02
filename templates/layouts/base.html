@@ -31,18 +31,18 @@
       </div>
       <div class="nav-links">
         <a
-          href="{{ url_for('batiments.index') }}"
-          class="nav-link {% if request.endpoint == 'batiments.index' %}active{% endif %}"
+          href="{{ url_for('batiments.list_batiments') }}"
+          class="nav-link {% if request.endpoint == 'batiments.list_batiments' %}active{% endif %}"
         >
           Bâtiments
         </a>
         <a
-          href="{{ url_for('stats.statistiques') }}"
-          class="nav-link {% if request.endpoint == 'stats.statistiques' %}active{% endif %}"
+          href="{{ url_for('stats.get_stats') }}"
+          class="nav-link {% if request.endpoint == 'stats.get_stats' %}active{% endif %}"
         >
           Statistiques
         </a>
-        <a href="{{ url_for('batiments.nouveau_batiment') }}" class="nav-btn">
+        <a href="{{ url_for('batiments.create_batiment') }}" class="nav-btn">
           + Nouveau Bâtiment
         </a>
       </div>

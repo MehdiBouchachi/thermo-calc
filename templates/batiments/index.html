@@ -7,7 +7,7 @@
     <h1 class="page-title">Bâtiments Enregistrés</h1>
     <p class="page-subtitle">Gestion et analyse énergétique du parc bâti</p>
   </div>
-  <a href="{{ url_for('batiments.nouveau_batiment') }}" class="btn-primary"
+  <a href="{{ url_for('batiments.create_batiment') }}" class="btn-primary"
     >+ Nouveau bâtiment</a
   >
 </div>
@@ -66,7 +66,7 @@
       </a>
       <form
         method="POST"
-        action="{{ url_for('batiments.supprimer_batiment', batiment_id=b.id) }}"
+        action="{{ url_for('batiments.delete_batiment', batiment_id=b.id) }}"
         onsubmit="return confirm('Supprimer ce bâtiment ?');"
       >
         <button type="submit" class="btn-danger-sm">✕</button>
@@ -84,7 +84,7 @@
     Commencez par créer votre premier bâtiment pour effectuer un calcul de
     déperdition thermique.
   </p>
-  <a href="{{ url_for('batiments.nouveau_batiment') }}" class="btn-primary"
+  <a href="{{ url_for('batiments.create_batiment') }}" class="btn-primary"
     >Créer un bâtiment</a
   >
 </div>

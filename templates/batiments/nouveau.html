@@ -8,7 +8,7 @@
       Saisissez les informations du bâtiment pour débuter l'analyse
     </p>
   </div>
-  <a href="{{ url_for('batiments.index') }}" class="btn-secondary"
+  <a href="{{ url_for('batiments.list_batiments') }}" class="btn-secondary"
     >← Retour à la liste</a
   >
 </div>
@@ -16,7 +16,7 @@
 <div class="form-container-new">
   <form
     method="POST"
-    action="{{ url_for('batiments.nouveau_batiment') }}"
+    action="{{ url_for('batiments.create_batiment') }}"
     class="modern-form"
   >
     <!-- SECTION 1: IDENTIFICATION -->
@@ -243,7 +243,9 @@
 
     <!-- ACTIONS -->
     <div class="form-actions-new">
-      <a href="{{ url_for('batiments.index') }}" class="btn-secondary-large"
+      <a
+        href="{{ url_for('batiments.list_batiments') }}"
+        class="btn-secondary-large"
         >Annuler</a
       >
       <button type="submit" class="btn-primary-large">

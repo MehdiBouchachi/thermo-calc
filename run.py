@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-# thermocalc/run.py
-"""
-Application entry point for ThermoCalc.
-Initializes the Flask application and starts the development server.
-"""
+"""Application entry point for ThermoCalc."""
 
 from app import create_app
 
